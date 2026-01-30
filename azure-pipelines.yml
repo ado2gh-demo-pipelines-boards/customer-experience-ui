@@ -1,0 +1,26 @@
+trigger:
+- main
+- develop
+
+pr:
+- main
+- develop
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- checkout: self
+  clean: true
+
+- script: |
+    set -e
+    python --version
+    test -f ui/index.html
+    test -f api/app.py
+  displayName: "Sanity checks"
+
+- script: |
+    set -e
+    python -m unittest discover -s api/tests -p "test_*.py" -t .
+  displayName: "Run unit tests"
