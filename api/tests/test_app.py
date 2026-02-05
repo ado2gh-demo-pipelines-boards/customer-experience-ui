@@ -10,3 +10,8 @@ class TestApp(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_mul(self):
+        self.assertEqual(app.mul(2,3), 6)
+
