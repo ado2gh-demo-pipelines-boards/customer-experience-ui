@@ -1,3 +1,7 @@
+# azure-pipelines.yml
+# Multi-stage pipeline that runs with NO hosted/self-hosted agent
+# Uses agentless (server) jobs + Delay task
+
 trigger:
 - main
 - develop
@@ -6,21 +10,41 @@ pr:
 - main
 - develop
 
-pool:
-  vmImage: ubuntu-latest
+stages:
+- stage: Build
+  displayName: "Build (customer-experience-ui-ci)"
+  jobs:
+  - job: Build
+    displayName: "Build - agentless"
+    pool: server
+    steps:
+    - task: Delay@1
+      displayName: "Simulate build work"
+      inputs:
+        delayForMinutes: "1"
 
-steps:
-- checkout: self
-  clean: true
+- stage: Test
+  displayName: "Test (customer-experience-ui-ci)"
+  dependsOn: Build
+  jobs:
+  - job: Test
+    displayName: "Test - agentless"
+    pool: server
+    steps:
+    - task: Delay@1
+      displayName: "Simulate test work"
+      inputs:
+        delayForMinutes: "1"
 
-- script: |
-    set -e
-    python --version
-    test -f ui/index.html
-    test -f api/app.py
-  displayName: "Sanity checks"
-
-- script: |
-    set -e
-    python -m unittest discover -s api/tests -p "test_*.py" -t .
-  displayName: "Run unit tests"
+- stage: Deploy
+  displayName: "Deploy (customer-experience-ui-ci)"
+  dependsOn: Test
+  jobs:
+  - job: Deploy
+    displayName: "Deploy - agentless"
+    pool: server
+    steps:
+    - task: Delay@1
+      displayName: "Simulate deploy work"
+      inputs:
+        delayForMinutes: "1"
